@@ -68,7 +68,7 @@ for symbol in markets:
             continue
 
         # Filter RSI
-        if rsi >= 10:
+        if rsi >= 15:
             continue
 
         # Volume candle terakhir
