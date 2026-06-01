@@ -86,7 +86,8 @@ results.sort(
 )
 
 if results:
-    message = "🚨 Bitget Futures Oversold\n\n"
+    send(message)
+message = "🚨 Bitget Futures Oversold\n\n"
 
 for pair, rsi, price in results[:5]:
 
@@ -94,4 +95,4 @@ for pair, rsi, price in results[:5]:
         f"📉 {pair}\n"
         f"RSI(4): {rsi}\n"
         f"Harga: {price}\n\n"
-    )
+)
