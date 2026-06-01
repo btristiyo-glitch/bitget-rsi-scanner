@@ -7,7 +7,13 @@ from ta.momentum import RSIIndicator
 
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-
+send_test = requests.post(
+    f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+    json={
+        "chat_id": CHAT_ID,
+        "text": "✅ Tes GitHub Actions berhasil"
+    }
+)
 exchange = ccxt.bitget()
 
 def send(msg):
