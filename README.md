@@ -1,0 +1,1 @@
+# bitget-rsi-scanner
