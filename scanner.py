@@ -11,7 +11,7 @@ send_test = requests.post(
     f"https://api.telegram.org/bot{TOKEN}/sendMessage",
     json={
         "chat_id": CHAT_ID,
-        "text": "✅ Tes GitHub Actions berhasil"
+        "text": "✅ Screening berhasil"
     }
 )
 exchange = ccxt.bitget()
@@ -73,18 +73,4 @@ results.sort(
 )
 
 if results:
-
-    message = "🚨 RSI(4) < 10 Bitget Futures\n\n"
-
-    for pair, rsi in results[:10]:
-
-        message += (
-            f"{pair}\n"
-            f"RSI: {rsi}\n\n"
-        )
-
     send(message)
-
-else:
-
-    send("✅ Scanner aktif - tidak ada pair RSI(4) < 10")
