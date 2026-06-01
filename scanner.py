@@ -74,9 +74,9 @@ results.sort(
 
 if results:
 
-    message = "🚨 RSI(4) < 10\n\n"
+    message = "🚨 RSI(4) < 10 Bitget Futures\n\n"
 
-    for pair, rsi in results[:20]:
+    for pair, rsi in results[:10]:
 
         message += (
             f"{pair}\n"
@@ -84,3 +84,7 @@ if results:
         )
 
     send(message)
+
+else:
+
+    send("✅ Scanner aktif - tidak ada pair RSI(4) < 10")
