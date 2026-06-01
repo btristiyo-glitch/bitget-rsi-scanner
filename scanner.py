@@ -33,8 +33,8 @@ for symbol in markets:
 
     try:
 
-        if ":USDT" not in symbol:
-            continue
+        if not symbol.endswith(":USDT"):
+    continue
 
         ohlcv = exchange.fetch_ohlcv(
             symbol,
@@ -42,6 +42,15 @@ for symbol in markets:
             limit=100
         )
 
+
+        volume = df['volume'].iloc[-1]
+close_price = df['close'].iloc[-1]
+
+volume_usdt = volume * close_price
+
+if volume_usdt < 1000000:
+    continue
+    
         df = pd.DataFrame(
             ohlcv,
             columns=[
@@ -62,8 +71,12 @@ for symbol in markets:
         if rsi < 10:
 
             results.append(
-                (symbol, round(rsi, 2))
-            )
+    (
+        symbol,
+        round(rsi, 2),
+        round(close_price, 6)
+    )
+)
 
     except:
         pass
@@ -73,4 +86,12 @@ results.sort(
 )
 
 if results:
-    send(message)
+    message = "🚨 Bitget Futures Oversold\n\n"
+
+for pair, rsi, price in results[:5]:
+
+    message += (
+        f"📉 {pair}\n"
+        f"RSI(4): {rsi}\n"
+        f"Harga: {price}\n\n"
+    )
