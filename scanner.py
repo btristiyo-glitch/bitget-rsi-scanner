@@ -37,7 +37,7 @@ for symbol in markets:
 
         ohlcv = exchange.fetch_ohlcv(
             symbol,
-            timeframe="5m",
+            timeframe="1m",
             limit=100
         )
 
@@ -68,7 +68,7 @@ for symbol in markets:
             continue
 
         # Filter RSI
-        if rsi >= 15:
+        if rsi >= 10:
             continue
 
         # Volume candle terakhir
