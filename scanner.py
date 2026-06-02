@@ -37,7 +37,7 @@ for symbol in markets:
 
         ohlcv = exchange.fetch_ohlcv(
             symbol,
-            timeframe="1m",
+            timeframe="5m",
             limit=100
         )
 
