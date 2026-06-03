@@ -38,10 +38,10 @@ for symbol in markets:
         ohlcv = exchange.fetch_ohlcv(
             symbol,
             timeframe="5m",
-            limit=250
+            limit=100
         )
 
-        if len(ohlcv) < 210:
+        if len(ohlcv) < 20:
             continue
 
         df = pd.DataFrame(
@@ -58,33 +58,24 @@ for symbol in markets:
 
         close_price = float(df["close"].iloc[-1])
 
-        # RSI(4)
-        rsi = RSIIndicator(
-            df["close"],
-            window=4
-        ).rsi().iloc[-1]
+# RSI(4)
+rsi = RSIIndicator(
+    df["close"],
+    window=4
+).rsi().iloc[-1]
 
-        if pd.isna(rsi):
-            continue
+if pd.isna(rsi):
+    continue
 
-        if rsi >= 15:
-            continue
+# Hanya ambil RSI(4) di bawah 15
+if rsi >= 15:
+    continue
 
-        # EMA200
-        ema200 = (
-            df["close"]
-            .ewm(span=200, adjust=False)
-            .mean()
-            .iloc[-1]
-        )
-
-        if close_price < ema200:
-            continue
-
-        # Volume candle terakhir (USDT)
+        # Volume candle terakhir
         volume = float(df["volume"].iloc[-1])
         volume_usdt = volume * close_price
 
+        # Minimal volume 500k USDT
         if volume_usdt < 500000:
             continue
 
@@ -110,6 +101,21 @@ results = sorted(
     key=lambda x: x["rsi"]
 )
 
+if results:
+
+    message = "🚨 BITGET FUTURES RSI OVERSOLD\n\n"
+
+    for item in results[:10]:
+
+        message += (
+            f"📉 {item['symbol']}\n"
+            f"RSI(4): {item['rsi']}\n"
+            f"Harga: {item['price']}\n"
+            f"Vol 5m: ${item['volume']:,}\n"
+            f"Chart:\n{item['chart']}\n\n"
+        )
+
+    send(message)
 if results:
 
     message = "🚨 BITGET FUTURES OVERSOLD\n\n"
