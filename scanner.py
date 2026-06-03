@@ -58,18 +58,18 @@ for symbol in markets:
 
         close_price = float(df["close"].iloc[-1])
 
-# RSI(4)
-rsi = RSIIndicator(
-    df["close"],
-    window=4
-).rsi().iloc[-1]
+        # RSI(4)
+        rsi = RSIIndicator(
+            df["close"],
+            window=4
+        ).rsi().iloc[-1]
 
-if pd.isna(rsi):
-    continue
+        if pd.isna(rsi):
+            continue
 
-# Hanya ambil RSI(4) di bawah 15
-if rsi >= 15:
-    continue
+        # Filter RSI
+        if rsi >= 15:
+            continue
 
         # Volume candle terakhir
         volume = float(df["volume"].iloc[-1])
@@ -106,21 +106,6 @@ if results:
     message = "🚨 BITGET FUTURES RSI OVERSOLD\n\n"
 
     for item in results[:10]:
-
-        message += (
-            f"📉 {item['symbol']}\n"
-            f"RSI(4): {item['rsi']}\n"
-            f"Harga: {item['price']}\n"
-            f"Vol 5m: ${item['volume']:,}\n"
-            f"Chart:\n{item['chart']}\n\n"
-        )
-
-    send(message)
-if results:
-
-    message = "🚨 BITGET FUTURES OVERSOLD\n\n"
-
-    for item in results[:5]:
 
         message += (
             f"📉 {item['symbol']}\n"
