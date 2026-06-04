@@ -1,7 +1,5 @@
 import ccxt
 import pandas as pd
-import ccxt
-import pandas as pd
 import requests
 import os
 
@@ -33,6 +31,7 @@ for symbol in markets:
 
     try:
 
+        # Hanya futures USDT-M
         if not symbol.endswith(":USDT"):
             continue
 
@@ -42,7 +41,7 @@ for symbol in markets:
             limit=100
         )
 
-        if len(ohlcv) < 30:
+        if len(ohlcv) < 20:
             continue
 
         df = pd.DataFrame(
@@ -58,63 +57,37 @@ for symbol in markets:
         )
 
         close_price = float(df["close"].iloc[-1])
-        open_price = float(df["open"].iloc[-1])
 
-        rsi_series = RSIIndicator(
+        # RSI(4)
+        rsi = RSIIndicator(
             df["close"],
             window=4
-        ).rsi()
+        ).rsi().iloc[-1]
 
-        rsi_now = float(rsi_series.iloc[-1])
-        rsi_prev = float(rsi_series.iloc[-2])
-
-        if pd.isna(rsi_now) or pd.isna(rsi_prev):
+        if pd.isna(rsi):
             continue
 
-        # RSI oversold
-        if rsi_now >= 15:
+        # Filter RSI
+        if rsi >= 10:
             continue
 
-        # RSI mulai naik
-        if rsi_now <= rsi_prev:
-            continue
+        # Volume candle terakhir
+        volume = float(df["volume"].iloc[-1])
+        volume_usdt = volume * close_price
 
-        # Candle hijau
-        if close_price <= open_price:
-            continue
-
-        # Volume
-        volume_now = float(df["volume"].iloc[-1])
-        avg_volume = float(df["volume"].tail(20).mean())
-
-        if volume_now <= avg_volume:
-            continue
-
-        volume_usdt = volume_now * close_price
-
+        # Minimal volume 500k USDT
         if volume_usdt < 500000:
             continue
 
-        # Scoring
-        score = 0
-
-        score += max(0, 15 - rsi_now) * 5
-
-        rsi_rebound = rsi_now - rsi_prev
-        score += rsi_rebound * 20
-
-        volume_ratio = volume_now / avg_volume
-        score += volume_ratio * 10
+        base_coin = symbol.split("/")[0]
 
         chart_url = (
-            f"https://www.bitget.com/futures/usdt/"
-            f"{symbol.split('/')[0]}USDT"
+            f"https://www.bitget.com/futures/usdt/{base_coin}USDT"
         )
 
         results.append({
             "symbol": symbol,
-            "score": round(score, 2),
-            "rsi": round(rsi_now, 2),
+            "rsi": round(float(rsi), 2),
             "price": close_price,
             "volume": int(volume_usdt),
             "chart": chart_url
@@ -125,23 +98,21 @@ for symbol in markets:
 
 results = sorted(
     results,
-    key=lambda x: x["score"],
-    reverse=True
+    key=lambda x: x["rsi"]
 )
 
 if results:
 
-    message = "🚀 BITGET SCALPING SCANNER\n\n"
+    message = "🚨 BITGET FUTURES RSI OVERSOLD\n\n"
 
-    for item in results[:5]:
+    for item in results[:10]:
 
         message += (
-            f"⭐ Score: {item['score']}\n"
-            f"Pair: {item['symbol']}\n"
+            f"📉 {item['symbol']}\n"
             f"RSI(4): {item['rsi']}\n"
             f"Harga: {item['price']}\n"
             f"Vol 5m: ${item['volume']:,}\n"
-            f"{item['chart']}\n\n"
+            f"Chart:\n{item['chart']}\n\n"
         )
 
     send(message)
